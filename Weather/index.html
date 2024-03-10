@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="wrapper">
+          <div class="img_section">
+            <div class="default_info">
+              <h2 class="default_day" id="currentDay"></h2>
+              <span class="default_date" id="currentDateTime"></span>
+              <div class="icons">
+                <img src="https://openweathermap.org/img/wn/10d@4x.png" alt="" />
+                <h2 class="weather_temp">22°C</h2>
+                <h3 class="cloudtxt">Overcast Clouds</h3>
+              </div>
+            </div>
+          </div>
+          <div class="content_section">
+            <form>
+              <input
+                type="text"
+                placeholder="Search Location"
+                class="input_field"
+              />
+              <button type="submit" class="btn_search">Search</button>
+            </form>
+            
+            <div class="day_info">
+              <div class="content">
+                <p class="title">NAME</p>
+                <span class="value">Chennai</span>
+              </div>
+              <div class="content">
+                <p class="title">TEMP</p>
+                <span class="value">30°C</span>
+              </div>
+              <div class="content">
+                <p class="title">HUMIDITY</p>
+                <span class="value">58%</span>
+              </div>
+              <div class="content">
+                <p class="title">WIND SPEED</p>
+                <span class="value">4.62 Km/h</span>
+              </div>
+            </div>
+
+            <div class="list_content">
+              <ul>
+                <li>
+                  <img src="https://openweathermap.org/img/wn/10d@2x.png" />
+                  <span>Sat</span>
+                  <span class="day_temp">23°C</span>
+                </li>
+                <li>
+                  <img src="https://openweathermap.org/img/wn/10d@2x.png" />
+                  <span>Sat</span>
+                  <span class="day_temp">23°C</span>
+                </li>
+                <li>
+                  <img src="https://openweathermap.org/img/wn/10d@2x.png" />
+                  <span>Sat</span>
+                  <span class="day_temp">23°C</span>
+                </li>
+                <li>
+                  <img src="https://openweathermap.org/img/wn/10d@2x.png" />
+                  <span>Sat</span>
+                  <span class="day_temp">23°C</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <script src="script.js"></script>
+
+    <script> 
+    // JavaScript code to update the current date, time, and day dynamically
+      setInterval(function () {
+          const now = new Date();
+          document.getElementById('currentDateTime').textContent = now.toLocaleString();
+          document.getElementById('currentDay').textContent = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(now);
+      }, 1000); // Update every second
+  
+      function searchWeather() {
+          const apiKey = '752375d83be989c242f4daf03848a923'; // Replace with your actual API key
+          const locationInput = document.getElementById('locationInput').value;
+  
+          // Use the OpenWeatherMap API to get historical weather information for the specified location
+          const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${locationInput}&appid=${apiKey}&units=metric`;
+          const forecastUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=13.0827&lon=80.2707&exclude=current,minutely,hourly&appid=${apiKey}&units=metric`;
+  
+          // Fetch current weather
+          fetch(currentWeatherUrl)
+              .then(response => response.json())
+              .then(data => {
+                  // Update UI with current weather information
+                  document.getElementById('currentDay').textContent = new Date().toLocaleString('en-IN', { weekday: 'long' });
+                  document.getElementById('currentDateTime').textContent = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+                  document.getElementById('locationName').textContent = data.name + ', ' + data.sys.country;
+                  document.getElementById('tempValue').textContent = data.main.temp + '°C';
+                  document.getElementById('humidityValue').textContent = data.main.humidity + '%';
+                  document.getElementById('windSpeedValue').textContent = data.wind.speed + ' Km/h';
+                  document.getElementById('weatherDescription').textContent = data.weather[0].description;
+                  document.getElementById('weatherIcon').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
+              })
+              .catch(error => {
+                  console.error('Error fetching current weather data:', error);
+              });
+  
+          // Fetch forecast for previous days
+          fetch(forecastUrl)
+              .then(response => response.json())
+              .then(data => {
+                  // Update forecast list for previous days
+                  const forecastList = document.getElementById('forecastList');
+                  forecastList.innerHTML = '';
+                  for (let i = 1; i <= 4; i++) {
+                      const forecastItem = data.daily[i];
+                      const listItem = document.createElement('li');
+                      listItem.innerHTML = `
+                          <img src="https://openweathermap.org/img/wn/${forecastItem.weather[0].icon}.png" />
+                          <span>${new Date(forecastItem.dt * 1000).toLocaleString('en-IN', { weekday: 'short' })}</span>
+                          <span class="day_temp">${forecastItem.temp.day}°C</span>
+                      `;
+                      forecastList.appendChild(listItem);
+                  }
+              })
+              .catch(error => {
+                  console.error('Error fetching forecast data:', error);
+              });
+      }
+    </script>
+
+
+</body>
+</html>
